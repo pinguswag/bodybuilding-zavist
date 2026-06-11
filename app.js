@@ -31,7 +31,7 @@ const state = {
   searchQuery: ''
 };
 
-// Answer Formatting Helper for structural grid alignment
+// Answer Formatting Helper for structural grid alignment (Smart Table/Grid reconstruction)
 function formatAnswerHTML(answerText) {
   if (!answerText) return "";
   
@@ -40,19 +40,92 @@ function formatAnswerHTML(answerText) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
     
-  const lines = escaped.split('\n');
+  const lines = escaped.split('\n').map(l => l.trim()).filter(l => l);
   let html = "";
   
-  lines.forEach(line => {
-    let trimmed = line.trim();
-    if (!trimmed) {
-      html += "<br>";
-      return;
+  let i = 0;
+  while (i < lines.length) {
+    let line = lines[i];
+    
+    // 1. Check if this line is a multi-column header (e.g. "[행위별 분류] [대상별 분류]")
+    let headers = line.split(/(?=\s\[)/).map(h => h.trim());
+    if (headers.length > 1 && headers.every(h => h.startsWith('[') && h.endsWith(']'))) {
+      // Gather subsequent lines that are list items starting with markers
+      let listItems = [];
+      let nextIdx = i + 1;
+      
+      while (nextIdx < lines.length) {
+        let nextLine = lines[nextIdx].trim();
+        if (/^[①-⑩‣\-]/.test(nextLine)) {
+          listItems.push(nextLine);
+          nextIdx++;
+        } else {
+          break;
+        }
+      }
+      
+      if (listItems.length > 0) {
+        let numCols = headers.length;
+        let colBuckets = Array.from({ length: numCols }, () => []);
+        
+        // Helper to extract numbers for sorting (e.g., ① -> 1)
+        const getNum = (str) => {
+          const match = str.match(/^[①-⑩]/);
+          if (!match) return 999;
+          const char = match[0];
+          const nums = {"①":1, "②":2, "③":3, "④":4, "⑤":5, "⑥":6, "⑦":7, "⑧":8, "⑨":9, "⑩":10};
+          return nums[char] || 999;
+        };
+        
+        // Detect layout pattern: Alternating vs Sequential
+        let isAlternating = false;
+        if (listItems.length > 1) {
+          let n1 = getNum(listItems[0]);
+          let n2 = getNum(listItems[1]);
+          if (n1 !== 999 && n1 === n2) {
+            isAlternating = true;
+          }
+        }
+        
+        if (isAlternating) {
+          // Case 1: Alternating pattern (e.g. ① A, ① B, ② A, ② B)
+          listItems.forEach((item, idx) => {
+            let colIdx = idx % numCols;
+            colBuckets[colIdx].push(item);
+          });
+        } else {
+          // Case 2: Sequential pattern (e.g. ① A, ② A, ③ A, ① B, ② B)
+          let currentCol = 0;
+          let prevNum = -1;
+          listItems.forEach(item => {
+            let num = getNum(item);
+            if (num !== 999 && num < prevNum) {
+              currentCol = (currentCol + 1) % numCols;
+            }
+            colBuckets[currentCol].push(item);
+            prevNum = num;
+          });
+        }
+        
+        // Render reconstructed multi-column layout
+        html += `<div style="display: flex; gap: 20px; margin-top: 12px; margin-bottom: 12px; justify-content: space-between; flex-wrap: wrap;">`;
+        for (let c = 0; c < numCols; c++) {
+          html += `<div style="flex: 1 1 45%; min-width: 150px;">`;
+          html += `<div style="font-weight: 700; color: var(--secondary); margin-bottom: 8px; border-bottom: 1px solid rgba(20, 184, 166, 0.2); padding-bottom: 4px;">${headers[c]}</div>`;
+          colBuckets[c].forEach(item => {
+            html += `<div style="margin-bottom: 6px; word-break: keep-all;">${item}</div>`;
+          });
+          html += `</div>`;
+        }
+        html += `</div>`;
+        
+        i = nextIdx;
+        continue;
+      }
     }
     
-    // Split by multiple circle numbers or category brackets within a single line
-    let parts = trimmed.split(/(?=\s[①-⑩‣\[])/);
-    
+    // 2. Fallback: Check if inline multi-column items exist
+    let parts = line.split(/(?=\s[①-⑩‣\[])/);
     if (parts.length > 1) {
       html += `<div style="display: flex; gap: 20px; margin-bottom: 6px; justify-content: space-between; flex-wrap: wrap;">`;
       parts.forEach(part => {
@@ -60,13 +133,15 @@ function formatAnswerHTML(answerText) {
       });
       html += `</div>`;
     } else {
-      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-        html += `<div style="font-weight: 700; color: var(--secondary); margin-top: 12px; margin-bottom: 8px;">${trimmed}</div>`;
+      if (line.startsWith('[') && line.endsWith(']')) {
+        html += `<div style="font-weight: 700; color: var(--secondary); margin-top: 12px; margin-bottom: 8px;">${line}</div>`;
       } else {
-        html += `<div style="margin-bottom: 6px; word-break: keep-all;">${trimmed}</div>`;
+        html += `<div style="margin-bottom: 6px; word-break: keep-all;">${line}</div>`;
       }
     }
-  });
+    
+    i++;
+  }
   
   return html;
 }
