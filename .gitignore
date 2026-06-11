@@ -1,0 +1,10 @@
+# Ignore raw study material PDFs to avoid public copyright issues
+*.pdf
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore temp scripts or build caches
+scratch/
+node_modules/
+dist/

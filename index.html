@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>생체 2급 보디빌딩 구술 모의고사</title>
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="app">
+    <!-- Common Header -->
+    <header>
+      <div class="brand" id="nav-brand">
+        <div class="flex-row-center">
+          <i class="fa-solid fa-dumbbell" style="font-size: 1.5rem; color: var(--primary);"></i>
+          <div>
+            <h1>ZAVIST MOCK</h1>
+            <div class="brand-subtitle">BODYBUILDING ORAL</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-icon" id="btn-nav-search" title="검색">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="btn-icon" id="btn-nav-bookmark" title="북마크">
+          <i class="fa-solid fa-star"></i>
+        </button>
+        <button class="btn-icon" id="btn-nav-home" title="홈으로">
+          <i class="fa-solid fa-house"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens -->
+    <main>
+      
+      <!-- 1. Home Screen -->
+      <section class="screen active" id="screen-home">
+        <div class="hero glass">
+          <h2>생활스포츠지도사 2급<br>보디빌딩 구술 모의고사</h2>
+          <p>PDF 기반 공식 구술 족보 (총 373문항)</p>
+        </div>
+
+
+
+        <!-- Quick Menus -->
+        <div class="menu-grid">
+          <div class="menu-card glass" id="menu-quick-test">
+            <div class="icon-wrapper" style="color: var(--secondary);">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3>실전 모의고사</h3>
+            <p>랜덤 10문항 실전 테스트</p>
+          </div>
+          <div class="menu-card glass" id="menu-practice">
+            <div class="icon-wrapper" style="color: var(--primary);">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3>전체 연습 모드</h3>
+            <p>차근차근 넘기며 암기</p>
+          </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="category-section">
+          <div class="section-title">
+            <span>카테고리별 연습</span>
+            <i class="fa-solid fa-tags" style="font-size: 0.9rem; color: var(--text-muted);"></i>
+          </div>
+          <div class="category-list" id="category-list-container">
+            <!-- Dynamically populated categories -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Learn / Practice Screen (Flashcards) -->
+      <section class="screen" id="screen-learn">
+        <div class="mode-header">
+          <span class="badge primary" id="learn-badge-category">카테고리</span>
+          <span id="learn-progress-text">1 / 373</span>
+        </div>
+
+        <!-- Interactive 3D Card -->
+        <div class="card-container" id="learn-card-trigger">
+          <div class="flashcard glass" id="learn-card">
+            
+            <!-- Front Face: Question -->
+            <div class="card-face card-front">
+              <div class="card-cat" id="learn-front-cat">CATEGORY</div>
+              <div class="card-q-text" id="learn-front-q">질문 내용이 이곳에 표시됩니다.</div>
+              <div class="card-hint-tap">
+                <i class="fa-solid fa-hand-pointer"></i> 터치하여 답안 보기
+              </div>
+            </div>
+
+            <!-- Back Face: Answer -->
+            <div class="card-face card-back">
+              <div class="card-cat" id="learn-back-cat">CATEGORY</div>
+              <div style="font-size: 0.9rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">[정답 확인]</div>
+              <div class="card-a-text" id="learn-back-a">답안 내용이 표시됩니다.</div>
+              <div class="my-lang-box" id="learn-back-mylang" style="display: none;">
+                <strong>나의 언어:</strong> <span id="learn-back-mylang-text"></span>
+              </div>
+              <div class="card-hint-tap" style="justify-content: center;">
+                <i class="fa-solid fa-rotate-left"></i> 터치하여 질문으로 돌아가기
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn" id="btn-learn-prev" title="이전 문제">
+            <i class="fa-solid fa-arrow-left"></i> 이전
+          </button>
+          <button class="btn btn-bookmark" id="btn-learn-bookmark" title="북마크 토글">
+            <i class="fa-regular fa-star"></i> 북마크 저장
+          </button>
+          <button class="btn" id="btn-learn-next" title="다음 문제">
+            다음 <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. Test Mode Screen -->
+      <section class="screen" id="screen-test">
+        <div class="mode-header">
+          <span class="badge" style="border-color: var(--secondary); color: var(--secondary);" id="test-progress-badge">MOCK TEST 1/10</span>
+          <div class="timer-container">
+            <i class="fa-solid fa-clock"></i>
+            <span id="test-timer-text">60초</span>
+            <div class="timer-bar">
+              <div class="timer-fill" id="test-timer-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Flashcard (Not auto flipping on click to prevent grading skip) -->
+        <div class="card-container" id="test-card-trigger">
+          <div class="flashcard glass" id="test-card">
+            
+            <!-- Front Face -->
+            <div class="card-face card-front">
+              <div class="card-cat" id="test-front-cat">CATEGORY</div>
+              <div class="card-q-text" id="test-front-q">모의고사 질문 내용이 여기에 들어갑니다.</div>
+              <div class="card-hint-tap">
+                <i class="fa-solid fa-eye"></i> 답안 확인하고 자가 채점하기
+              </div>
+            </div>
+
+            <!-- Back Face -->
+            <div class="card-face card-back">
+              <div class="card-cat" id="test-back-cat">CATEGORY</div>
+              <div class="card-a-text" id="test-back-a">답안 내용이 노출됩니다. 머릿속으로 외운 내용과 일치하나요?</div>
+              <div class="my-lang-box" id="test-back-mylang" style="display: none;">
+                <strong>나의 언어:</strong> <span id="test-back-mylang-text"></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Grade Buttons (Shown when card is flipped / or always shown but card status triggers actions) -->
+        <div class="grading-buttons" id="test-grading-actions" style="visibility: hidden;">
+          <button class="btn btn-danger" id="btn-test-fail">
+            <i class="fa-solid fa-xmark"></i> 모름 / 틀림
+          </button>
+          <button class="btn btn-success" id="btn-test-success">
+            <i class="fa-solid fa-check"></i> 알고 있음 / 정답
+          </button>
+        </div>
+
+        <!-- Bottom Actions (Show Answer / Bookmark) -->
+        <div class="controls" id="test-bottom-controls">
+          <div></div>
+          <button class="btn btn-primary" id="btn-test-show-answer">
+            <i class="fa-solid fa-eye"></i> 정답 보기
+          </button>
+          <button class="btn btn-bookmark" id="btn-test-bookmark">
+            <i class="fa-regular fa-star"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. Result / Summary Screen -->
+      <section class="screen" id="screen-result">
+        <div class="result-container glass">
+          <div class="result-score" id="result-score-val">80점</div>
+          <div class="result-title" id="result-title-text">합격 안정권입니다! 🎉</div>
+          <p class="result-desc">스스로 완벽하게 답할 수 있었던 비율입니다.</p>
+          
+          <div class="result-stats">
+            <div class="stat-box glass" style="border-color: var(--success);">
+              <div class="stat-val" id="result-stat-pass" style="color: var(--success);">8</div>
+              <div class="stat-label">알고 있음</div>
+            </div>
+            <div class="stat-box glass" style="border-color: var(--danger);">
+              <div class="stat-val" id="result-stat-fail" style="color: var(--danger);">2</div>
+              <div class="stat-label">헷갈림/모름</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <button class="btn w-50" id="btn-result-home">홈으로</button>
+            <button class="btn btn-primary w-50" id="btn-result-retry">다시 풀기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Bookmark Screen (Faceted flashcards for bookmarks) -->
+      <section class="screen" id="screen-bookmark">
+        <div class="mode-header">
+          <span class="badge" style="border-color: var(--bookmark-color); color: var(--bookmark-color);"><i class="fa-solid fa-star"></i> 북마크 학습</span>
+          <span id="bookmark-progress-text">0 / 0</span>
+        </div>
+
+        <div class="card-container" id="bookmark-card-trigger">
+          <div class="flashcard glass" id="bookmark-card">
+            <!-- Front Face -->
+            <div class="card-face card-front">
+              <div class="card-cat" id="bookmark-front-cat">CATEGORY</div>
+              <div class="card-q-text" id="bookmark-front-q">북마크 질문 내용</div>
+              <div class="card-hint-tap">
+                <i class="fa-solid fa-hand-pointer"></i> 터치하여 답안 보기
+              </div>
+            </div>
+            <!-- Back Face -->
+            <div class="card-face card-back">
+              <div class="card-cat" id="bookmark-back-cat">CATEGORY</div>
+              <div class="card-a-text" id="bookmark-back-a">북마크 정답 내용</div>
+              <div class="my-lang-box" id="bookmark-back-mylang" style="display: none;">
+                <strong>나의 언어:</strong> <span id="bookmark-back-mylang-text"></span>
+              </div>
+              <div class="card-hint-tap" style="justify-content: center;">
+                <i class="fa-solid fa-rotate-left"></i> 터치하여 질문으로 돌아가기
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="btn-bookmark-prev">
+            <i class="fa-solid fa-arrow-left"></i> 이전
+          </button>
+          <button class="btn btn-bookmark bookmarked" id="btn-bookmark-toggle">
+            <i class="fa-solid fa-star"></i> 북마크 해제
+          </button>
+          <button class="btn" id="btn-bookmark-next">
+            다음 <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 6. Search & Knowledge Screen -->
+      <section class="screen" id="screen-search">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+          <input type="text" class="search-input" id="search-input-field" placeholder="규정, 뼈, 도핑, 복장 등 검색...">
+        </div>
+        
+        <div class="search-results" id="search-results-container">
+          <!-- Search items will be dynamically appended here -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Detail View Modal -->
+    <div class="modal-overlay" id="detail-modal">
+      <div class="modal-content glass">
+        <div class="modal-header">
+          <div>
+            <span class="badge primary" id="modal-cat">CATEGORY</span>
+            <h2 id="modal-q-id" style="font-size: 1.1rem; margin-top: 10px; font-weight: 800; color: var(--secondary);">질문 #</h2>
+          </div>
+          <button class="modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div style="font-weight: 700; font-size: 1.15rem; margin-top: 10px; word-break: keep-all;" id="modal-q-text">
+          질문 내용이 표시됩니다.
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
+        <div style="font-size: 0.95rem; white-space: pre-wrap; word-break: keep-all; line-height: 1.6;" id="modal-a-text">
+          답안 내용이 표시됩니다.
+        </div>
+        <div class="my-lang-box" id="modal-mylang" style="display: none;">
+          <strong>나의 언어:</strong> <span id="modal-mylang-text"></span>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button class="btn btn-bookmark" id="btn-modal-bookmark">
+            <i class="fa-regular fa-star"></i> 북마크 저장
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
