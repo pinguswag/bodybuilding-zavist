@@ -1,38 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
 :root {
-  --bg-primary: #080c16;
-  --bg-secondary: #0f1626;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.06);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-color-hover: rgba(255, 255, 255, 0.15);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* 뇌파를 안정시키고 눈의 피로를 최소화하는 Deep Forest & Steel Teal 테마 */
+  --bg-primary: #070b0e;             /* 차분한 밤의 딥 숲속 컬러 */
+  --bg-secondary: #0d141a;           /* 진하고 무게감 있는 카키 블랙 */
+  --bg-card: rgba(255, 255, 255, 0.02);
+  --bg-card-hover: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-color-hover: rgba(255, 255, 255, 0.12);
+  --text-primary: #f1f5f9;           /* 눈부심을 억제한 오프 화이트 */
+  --text-secondary: #94a3b8;         /* 부드러운 실버 그레이 */
+  --text-muted: #475569;
   
-  --primary: #a855f7;
-  --primary-glow: rgba(168, 85, 247, 0.4);
-  --primary-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --primary: #10b981;                /* 심리적 안정과 암기를 유도하는 포레스트 그린 */
+  --primary-glow: rgba(16, 185, 129, 0.25);
+  --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
   
-  --secondary: #06b6d4;
-  --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --secondary: #14b8a6;              /* 눈이 시원한 민트 틸 */
+  --secondary-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
   
   --success: #10b981;
-  --success-glow: rgba(16, 185, 129, 0.3);
+  --success-glow: rgba(16, 185, 129, 0.2);
   
-  --danger: #ef4444;
-  --danger-glow: rgba(239, 68, 68, 0.3);
+  --danger: #e11d48;                 /* 부드러운 톤의 로즈 레드 */
+  --danger-glow: rgba(225, 29, 72, 0.2);
   
-  --bookmark-color: #f59e0b;
+  --bookmark-color: #d97706;         /* 가시성이 뛰어나면서 자극적이지 않은 골드 호박색 */
   
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   
-  --shadow-neon: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --shadow-primary: 0 0 20px 0 rgba(168, 85, 247, 0.25);
-  --shadow-secondary: 0 0 20px 0 rgba(6, 182, 212, 0.25);
+  --shadow-neon: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-primary: 0 0 25px 0 rgba(16, 185, 129, 0.15);
+  --shadow-secondary: 0 0 25px 0 rgba(20, 184, 166, 0.15);
 }
 
 /* Reset & Base */
