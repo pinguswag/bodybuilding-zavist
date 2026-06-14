@@ -158,6 +158,7 @@ const elements = {
   menuQuickTest: document.getElementById('menu-quick-test'),
   menuPractice: document.getElementById('menu-practice'),
   menuNewType: document.getElementById('menu-new-type'),
+  menuPastExam: document.getElementById('menu-past-exam'),
   categoryContainer: document.getElementById('category-list-container'),
   
   // Practice Screen Elements
@@ -345,7 +346,9 @@ function renderCategoryList() {
 // --- PRACTICE MODE (LEARN) ---
 function startPractice(category = null) {
   state.practice.categoryFilter = category;
-  if (category) {
+  if (category === "기출정리") {
+    state.practice.questions = [...window.PAST_QUESTIONS];
+  } else if (category) {
     state.practice.questions = QUESTIONS.filter(q => q.category === category);
   } else {
     // Shuffle the full set for general practice
@@ -760,6 +763,9 @@ function setupEventListeners() {
   elements.menuQuickTest.addEventListener('click', startMockTest);
   elements.menuNewType.addEventListener('click', () => {
     startPractice("신유형[2026 스포츠지도사 신유형]");
+  });
+  elements.menuPastExam.addEventListener('click', () => {
+    startPractice("기출정리");
   });
   
   // Practice Cards
