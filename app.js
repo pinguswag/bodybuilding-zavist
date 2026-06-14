@@ -146,6 +146,15 @@ function formatAnswerHTML(answerText) {
   return html;
 }
 
+// Get unique key for a question to prevent ID collisions between datasets
+function getQuestionKey(q) {
+  if (!q) return "";
+  if (q.category === "기출정리") {
+    return `past_${q.id}`;
+  }
+  return `normal_${q.id}`;
+}
+
 // DOM Elements
 const elements = {
   screens: document.querySelectorAll('.screen'),
@@ -246,12 +255,28 @@ function init() {
 function loadLocalStorage() {
   const savedBookmarks = localStorage.getItem('zavist_bookmarks');
   if (savedBookmarks) {
-    JSON.parse(savedBookmarks).forEach(id => state.bookmarks.add(Number(id)));
+    JSON.parse(savedBookmarks).forEach(id => {
+      const strId = String(id);
+      // Migration: If it's a legacy plain number/id, map to normal_${id}
+      if (!strId.startsWith('past_') && !strId.startsWith('normal_')) {
+        state.bookmarks.add(`normal_${strId}`);
+      } else {
+        state.bookmarks.add(strId);
+      }
+    });
   }
   
   const savedSolved = localStorage.getItem('zavist_solved');
   if (savedSolved) {
-    JSON.parse(savedSolved).forEach(id => state.solved.add(Number(id)));
+    JSON.parse(savedSolved).forEach(id => {
+      const strId = String(id);
+      // Migration: Map legacy IDs to normal_${id}
+      if (!strId.startsWith('past_') && !strId.startsWith('normal_')) {
+        state.solved.add(`normal_${strId}`);
+      } else {
+        state.solved.add(strId);
+      }
+    });
   }
 }
 
@@ -368,7 +393,8 @@ function renderPracticeCard() {
   if (!currentQ) return;
   
   // Mark as solved
-  state.solved.add(currentQ.id);
+  const qKey = getQuestionKey(currentQ);
+  state.solved.add(qKey);
   saveState();
   
   // Reset card flipped state
@@ -391,11 +417,11 @@ function renderPracticeCard() {
   }
   
   // Sync bookmark button state
-  updateLearnBookmarkBtn(currentQ.id);
+  updateLearnBookmarkBtn(qKey);
 }
 
-function updateLearnBookmarkBtn(id) {
-  const isBookmarked = state.bookmarks.has(id);
+function updateLearnBookmarkBtn(key) {
+  const isBookmarked = state.bookmarks.has(key);
   elements.btnLearnBookmark.classList.toggle('bookmarked', isBookmarked);
   if (isBookmarked) {
     elements.btnLearnBookmark.innerHTML = '<i class="fa-solid fa-star"></i> 북마크 해제';
@@ -422,7 +448,8 @@ function renderTestCard() {
   if (!currentQ) return;
   
   // Mark as solved
-  state.solved.add(currentQ.id);
+  const qKey = getQuestionKey(currentQ);
+  state.solved.add(qKey);
   saveState();
   
   // Reset UI
@@ -446,7 +473,7 @@ function renderTestCard() {
   }
   
   // Bookmark sync
-  const isBookmarked = state.bookmarks.has(currentQ.id);
+  const isBookmarked = state.bookmarks.has(qKey);
   elements.btnTestBookmark.classList.toggle('bookmarked', isBookmarked);
   elements.btnTestBookmark.innerHTML = isBookmarked ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
   
@@ -500,7 +527,8 @@ function submitGrade(known) {
   // Automatically add to bookmark if user marked as "fail/don't know"
   const currentQ = state.test.questions[state.test.currentIndex];
   if (!known) {
-    state.bookmarks.add(currentQ.id);
+    const qKey = getQuestionKey(currentQ);
+    state.bookmarks.add(qKey);
     saveState();
   }
   
@@ -537,8 +565,11 @@ function showTestResults() {
 
 // --- BOOKMARK VIEW MODE ---
 function startBookmarkLearning() {
-  const bookmarkIds = [...state.bookmarks];
-  state.bookmarkView.questions = QUESTIONS.filter(q => bookmarkIds.includes(q.id));
+  const bookmarkKeys = [...state.bookmarks];
+  const normalBookmarked = QUESTIONS.filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  const pastBookmarked = (window.PAST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  
+  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked];
   state.bookmarkView.currentIndex = 0;
   
   renderBookmarkCard();
@@ -624,18 +655,21 @@ function toggleBookmarkOnView() {
   const currentQ = state.bookmarkView.questions[state.bookmarkView.currentIndex];
   if (!currentQ) return;
   
-  if (state.bookmarks.has(currentQ.id)) {
-    state.bookmarks.delete(currentQ.id);
+  const qKey = getQuestionKey(currentQ);
+  if (state.bookmarks.has(qKey)) {
+    state.bookmarks.delete(qKey);
   } else {
-    state.bookmarks.add(currentQ.id);
+    state.bookmarks.add(qKey);
   }
   
   saveState();
   
   // Reload bookmark view list but keep same position if possible
   const oldIndex = state.bookmarkView.currentIndex;
-  const bookmarkIds = [...state.bookmarks];
-  state.bookmarkView.questions = QUESTIONS.filter(q => bookmarkIds.includes(q.id));
+  const bookmarkKeys = [...state.bookmarks];
+  const normalBookmarked = QUESTIONS.filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  const pastBookmarked = (window.PAST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked];
   
   // Adjust current index
   if (state.bookmarkView.questions.length === 0) {
@@ -653,7 +687,9 @@ function performSearch(query) {
   
   elements.searchResultsContainer.innerHTML = '';
   
-  const filtered = QUESTIONS.filter(q => {
+  const allQs = [...QUESTIONS, ...(window.PAST_QUESTIONS || [])];
+  
+  const filtered = allQs.filter(q => {
     return q.question.toLowerCase().includes(state.searchQuery) ||
            q.answer.toLowerCase().includes(state.searchQuery) ||
            q.category.toLowerCase().includes(state.searchQuery) ||
@@ -674,12 +710,13 @@ function performSearch(query) {
     const item = document.createElement('div');
     item.className = 'search-item glass';
     
-    const isBookmarked = state.bookmarks.has(q.id);
+    const qKey = getQuestionKey(q);
+    const isBookmarked = state.bookmarks.has(qKey);
     
     item.innerHTML = `
       <div class="search-item-header">
         <span class="search-item-cat">${q.category}</span>
-        <i class="fa-solid fa-star bookmark-star ${isBookmarked ? 'bookmarked' : ''}" data-id="${q.id}"></i>
+        <i class="fa-solid fa-star bookmark-star ${isBookmarked ? 'bookmarked' : ''}" data-key="${qKey}"></i>
       </div>
       <div class="search-item-q">#${q.id} ${q.question}</div>
       <div class="search-item-a">${q.answer}</div>
@@ -690,8 +727,8 @@ function performSearch(query) {
       // If clicked the bookmark star, handle bookmark instead
       if (e.target.classList.contains('bookmark-star')) {
         e.stopPropagation();
-        const qId = Number(e.target.dataset.id);
-        toggleBookmark(qId);
+        const key = e.target.dataset.key;
+        toggleBookmark(key);
         e.target.classList.toggle('bookmarked');
         return;
       }
@@ -702,17 +739,18 @@ function performSearch(query) {
   });
 }
 
-function toggleBookmark(id) {
-  if (state.bookmarks.has(id)) {
-    state.bookmarks.delete(id);
+function toggleBookmark(key) {
+  if (state.bookmarks.has(key)) {
+    state.bookmarks.delete(key);
   } else {
-    state.bookmarks.add(id);
+    state.bookmarks.add(key);
   }
   saveState();
 }
 
 // --- MODAL UTILITIES ---
 function openDetailModal(q) {
+  const qKey = getQuestionKey(q);
   elements.modalCat.textContent = q.category;
   elements.modalQId.textContent = `질문 #${q.id}`;
   elements.modalQText.textContent = q.question;
@@ -726,16 +764,16 @@ function openDetailModal(q) {
   }
   
   // Set bookmark btn on modal
-  syncModalBookmarkBtn(q.id);
+  syncModalBookmarkBtn(qKey);
   
-  // Store reference to current modal question id
-  elements.btnModalBookmark.dataset.id = q.id;
+  // Store reference to current modal question key
+  elements.btnModalBookmark.dataset.key = qKey;
   
   elements.detailModal.classList.add('active');
 }
 
-function syncModalBookmarkBtn(id) {
-  const isBookmarked = state.bookmarks.has(id);
+function syncModalBookmarkBtn(key) {
+  const isBookmarked = state.bookmarks.has(key);
   elements.btnModalBookmark.classList.toggle('bookmarked', isBookmarked);
   elements.btnModalBookmark.innerHTML = isBookmarked ? '<i class="fa-solid fa-star"></i> 북마크 해제' : '<i class="fa-regular fa-star"></i> 북마크 저장';
 }
@@ -790,8 +828,9 @@ function setupEventListeners() {
   elements.btnLearnBookmark.addEventListener('click', () => {
     const currentQ = state.practice.questions[state.practice.currentIndex];
     if (currentQ) {
-      toggleBookmark(currentQ.id);
-      updateLearnBookmarkBtn(currentQ.id);
+      const qKey = getQuestionKey(currentQ);
+      toggleBookmark(qKey);
+      updateLearnBookmarkBtn(qKey);
     }
   });
   
@@ -809,8 +848,9 @@ function setupEventListeners() {
   elements.btnTestBookmark.addEventListener('click', () => {
     const currentQ = state.test.questions[state.test.currentIndex];
     if (currentQ) {
-      toggleBookmark(currentQ.id);
-      const isBookmarked = state.bookmarks.has(currentQ.id);
+      const qKey = getQuestionKey(currentQ);
+      toggleBookmark(qKey);
+      const isBookmarked = state.bookmarks.has(qKey);
       elements.btnTestBookmark.classList.toggle('bookmarked', isBookmarked);
       elements.btnTestBookmark.innerHTML = isBookmarked ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
     }
@@ -851,10 +891,10 @@ function setupEventListeners() {
   });
   
   elements.btnModalBookmark.addEventListener('click', () => {
-    const qId = Number(elements.btnModalBookmark.dataset.id);
-    if (qId) {
-      toggleBookmark(qId);
-      syncModalBookmarkBtn(qId);
+    const qKey = elements.btnModalBookmark.dataset.key;
+    if (qKey) {
+      toggleBookmark(qKey);
+      syncModalBookmarkBtn(qKey);
     }
   });
 }
