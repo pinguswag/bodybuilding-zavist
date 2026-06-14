@@ -1,7 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
 :root {
-  /* 뇌파를 안정시키고 눈의 피로를 최소화하는 Deep Forest & Steel Teal 테마 */
+  /* 뇌파를 안정시키고 눈의 피로를 최소화하는 Deep Forest & Steel Teal 테마 공통 변수 */
+  --primary: #10b981;                /* 포레스트 그린 */
+  --primary-glow: rgba(16, 185, 129, 0.25);
+  --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  
+  --secondary: #14b8a6;              /* 민트 틸 */
+  --secondary-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  
+  --success: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.2);
+  
+  --danger: #e11d48;                 /* 로즈 레드 */
+  --danger-glow: rgba(225, 29, 72, 0.2);
+  
+  --bookmark-color: #d97706;         /* 골드 호박색 */
+  
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 기본 다크 테마 변수 */
   --bg-primary: #070b0e;             /* 차분한 밤의 딥 숲속 컬러 */
   --bg-secondary: #0d141a;           /* 진하고 무게감 있는 카키 블랙 */
   --bg-card: rgba(255, 255, 255, 0.02);
@@ -12,28 +32,26 @@
   --text-secondary: #94a3b8;         /* 부드러운 실버 그레이 */
   --text-muted: #475569;
   
-  --primary: #10b981;                /* 심리적 안정과 암기를 유도하는 포레스트 그린 */
-  --primary-glow: rgba(16, 185, 129, 0.25);
-  --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  
-  --secondary: #14b8a6;              /* 눈이 시원한 민트 틸 */
-  --secondary-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-  
-  --success: #10b981;
-  --success-glow: rgba(16, 185, 129, 0.2);
-  
-  --danger: #e11d48;                 /* 부드러운 톤의 로즈 레드 */
-  --danger-glow: rgba(225, 29, 72, 0.2);
-  
-  --bookmark-color: #d97706;         /* 가시성이 뛰어나면서 자극적이지 않은 골드 호박색 */
-  
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  
   --shadow-neon: 0 12px 40px rgba(0, 0, 0, 0.6);
   --shadow-primary: 0 0 25px 0 rgba(16, 185, 129, 0.15);
   --shadow-secondary: 0 0 25px 0 rgba(20, 184, 166, 0.15);
+}
+
+html[data-theme="light"] {
+  /* 라이트 테마 변수 */
+  --bg-primary: #f8fafc;             /* 맑고 깨끗한 오프화이트 슬레이트 */
+  --bg-secondary: #f1f5f9;           /* 연한 그레이 베이스 */
+  --bg-card: rgba(255, 255, 255, 0.75); /* 반투명 유리가 어우러지는 화이트 톤 */
+  --bg-card-hover: rgba(255, 255, 255, 0.92);
+  --border-color: rgba(15, 23, 42, 0.08); /* 부드러운 슬레이트 테두리 */
+  --border-color-hover: rgba(15, 23, 42, 0.16);
+  --text-primary: #0f172a;           /* 눈의 피로를 덜어주는 슬레이트 블랙 */
+  --text-secondary: #475569;         /* 안정적인 다크 슬레이트 그레이 */
+  --text-muted: #94a3b8;
+  
+  --shadow-neon: 0 10px 30px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+  --shadow-primary: 0 0 20px 0 rgba(16, 185, 129, 0.06);
+  --shadow-secondary: 0 0 20px 0 rgba(20, 184, 166, 0.06);
 }
 
 /* Reset & Base */
@@ -52,6 +70,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* Ambient Background Lights */
@@ -65,6 +84,7 @@ body::before, body::after {
   z-index: -1;
   opacity: 0.15;
   pointer-events: none;
+  transition: opacity var(--transition-normal);
 }
 
 body::before {
@@ -77,6 +97,11 @@ body::after {
   bottom: 10%;
   right: 10%;
   background: var(--secondary);
+}
+
+html[data-theme="light"] body::before,
+html[data-theme="light"] body::after {
+  opacity: 0.05;
 }
 
 /* App Shell Layout */
@@ -129,7 +154,7 @@ header {
   border: 1px solid var(--border-color);
   border-radius: 20px;
   box-shadow: var(--shadow-neon);
-  transition: border-color var(--transition-normal), background var(--transition-normal);
+  transition: border-color var(--transition-normal), background var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .glass:hover {
@@ -472,6 +497,12 @@ main {
   border-radius: 4px;
   font-size: 0.85rem;
   color: #ffedd5;
+  transition: background var(--transition-normal), color var(--transition-normal);
+}
+
+html[data-theme="light"] .my-lang-box {
+  color: #854d0e;
+  background: rgba(217, 119, 6, 0.06);
 }
 
 .card-hint-tap {

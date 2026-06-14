@@ -1,6 +1,7 @@
 // Application State
 const state = {
   currentScreen: 'home',
+  theme: 'dark',
   bookmarks: new Set(),
   solved: new Set(),
   
@@ -162,6 +163,7 @@ const elements = {
   btnHome: document.getElementById('btn-nav-home'),
   btnBookmark: document.getElementById('btn-nav-bookmark'),
   btnSearch: document.getElementById('btn-nav-search'),
+  btnTheme: document.getElementById('btn-nav-theme'),
   
   // Home Screen Elements
   menuQuickTest: document.getElementById('menu-quick-test'),
@@ -245,6 +247,7 @@ const elements = {
 // --- INITIALIZATION ---
 function init() {
   loadLocalStorage();
+  applyTheme();
   setupEventListeners();
   renderCategoryList();
   updateDashboardProgress();
@@ -253,6 +256,11 @@ function init() {
 
 // Load Bookmarks and Solved Questions from LocalStorage
 function loadLocalStorage() {
+  const savedTheme = localStorage.getItem('zavist_theme');
+  if (savedTheme) {
+    state.theme = savedTheme;
+  }
+
   const savedBookmarks = localStorage.getItem('zavist_bookmarks');
   if (savedBookmarks) {
     JSON.parse(savedBookmarks).forEach(id => {
@@ -278,6 +286,26 @@ function loadLocalStorage() {
       }
     });
   }
+}
+
+// Theme Application & Toggling
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.theme);
+  if (elements.btnTheme) {
+    if (state.theme === 'dark') {
+      elements.btnTheme.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      elements.btnTheme.title = '라이트 모드로 전환';
+    } else {
+      elements.btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      elements.btnTheme.title = '다크 모드로 전환';
+    }
+  }
+}
+
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('zavist_theme', state.theme);
+  applyTheme();
 }
 
 // Save State to LocalStorage
@@ -795,6 +823,9 @@ function setupEventListeners() {
   elements.btnHome.addEventListener('click', () => navigateTo('home'));
   elements.btnBookmark.addEventListener('click', () => navigateTo('bookmark'));
   elements.btnSearch.addEventListener('click', () => navigateTo('search'));
+  if (elements.btnTheme) {
+    elements.btnTheme.addEventListener('click', toggleTheme);
+  }
   
   // Home Menu buttons
   elements.menuPractice.addEventListener('click', () => startPractice());
