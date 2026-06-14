@@ -157,6 +157,7 @@ const elements = {
   // Home Screen Elements
   menuQuickTest: document.getElementById('menu-quick-test'),
   menuPractice: document.getElementById('menu-practice'),
+  menuNewType: document.getElementById('menu-new-type'),
   categoryContainer: document.getElementById('category-list-container'),
   
   // Practice Screen Elements
@@ -757,6 +758,9 @@ function setupEventListeners() {
   // Home Menu buttons
   elements.menuPractice.addEventListener('click', () => startPractice());
   elements.menuQuickTest.addEventListener('click', startMockTest);
+  elements.menuNewType.addEventListener('click', () => {
+    startPractice("신유형[2026 스포츠지도사 신유형]");
+  });
   
   // Practice Cards
   elements.learnCardTrigger.addEventListener('click', () => {
