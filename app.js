@@ -153,6 +153,9 @@ function getQuestionKey(q) {
   if (q.category === "기출정리") {
     return `past_${q.id}`;
   }
+  if (q.category.startsWith("자비스트 기출")) {
+    return `zavist_${q.id}`;
+  }
   return `normal_${q.id}`;
 }
 
@@ -170,6 +173,7 @@ const elements = {
   menuPractice: document.getElementById('menu-practice'),
   menuNewType: document.getElementById('menu-new-type'),
   menuPastExam: document.getElementById('menu-past-exam'),
+  menuZavistExam: document.getElementById('menu-zavist-exam'),
   categoryContainer: document.getElementById('category-list-container'),
   
   // Practice Screen Elements
@@ -401,6 +405,8 @@ function startPractice(category = null) {
   state.practice.categoryFilter = category;
   if (category === "기출정리") {
     state.practice.questions = [...window.PAST_QUESTIONS];
+  } else if (category === "자비스트 기출") {
+    state.practice.questions = [...window.ZAVIST_QUESTIONS];
   } else if (category) {
     state.practice.questions = QUESTIONS.filter(q => q.category === category);
   } else {
@@ -596,8 +602,9 @@ function startBookmarkLearning() {
   const bookmarkKeys = [...state.bookmarks];
   const normalBookmarked = QUESTIONS.filter(q => bookmarkKeys.includes(getQuestionKey(q)));
   const pastBookmarked = (window.PAST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  const zavistBookmarked = (window.ZAVIST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
   
-  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked];
+  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked, ...zavistBookmarked];
   state.bookmarkView.currentIndex = 0;
   
   renderBookmarkCard();
@@ -697,7 +704,8 @@ function toggleBookmarkOnView() {
   const bookmarkKeys = [...state.bookmarks];
   const normalBookmarked = QUESTIONS.filter(q => bookmarkKeys.includes(getQuestionKey(q)));
   const pastBookmarked = (window.PAST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
-  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked];
+  const zavistBookmarked = (window.ZAVIST_QUESTIONS || []).filter(q => bookmarkKeys.includes(getQuestionKey(q)));
+  state.bookmarkView.questions = [...normalBookmarked, ...pastBookmarked, ...zavistBookmarked];
   
   // Adjust current index
   if (state.bookmarkView.questions.length === 0) {
@@ -715,7 +723,7 @@ function performSearch(query) {
   
   elements.searchResultsContainer.innerHTML = '';
   
-  const allQs = [...QUESTIONS, ...(window.PAST_QUESTIONS || [])];
+  const allQs = [...QUESTIONS, ...(window.PAST_QUESTIONS || []), ...(window.ZAVIST_QUESTIONS || [])];
   
   const filtered = allQs.filter(q => {
     return q.question.toLowerCase().includes(state.searchQuery) ||
@@ -835,6 +843,9 @@ function setupEventListeners() {
   });
   elements.menuPastExam.addEventListener('click', () => {
     startPractice("기출정리");
+  });
+  elements.menuZavistExam.addEventListener('click', () => {
+    startPractice("자비스트 기출");
   });
   
   // Practice Cards
