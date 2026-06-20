@@ -410,10 +410,11 @@ function startPractice(category = null) {
   } else if (category) {
     state.practice.questions = QUESTIONS.filter(q => q.category === category);
   } else {
-    // Shuffle the full set for general practice
     state.practice.questions = [...QUESTIONS];
-    shuffle(state.practice.questions);
   }
+  
+  // 모든 연습 모드에서 질문이 랜덤으로 섞여 나오도록 셔플 적용
+  shuffle(state.practice.questions);
   
   state.practice.currentIndex = 0;
   elements.learnBadgeCategory.textContent = category || '전체 연습';
